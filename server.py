@@ -1,5 +1,6 @@
-﻿
+
 import asyncio
+import os
 import websockets
 
 clients = set()
@@ -7,11 +8,9 @@ clients = set()
 async def chat(websocket):
     clients.add(websocket)
     print("A user connected")
-
     try:
         async for message in websocket:
             print("Message:", message)
-
             for client in list(clients):
                 if client != websocket:
                     try:
@@ -22,8 +21,9 @@ async def chat(websocket):
         clients.discard(websocket)
 
 async def main():
-    async with websockets.serve(chat, "0.0.0.0", 8765):
-        print("Chat server is running!")
+    port = int(os.environ.get("PORT", 8765))
+    async with websockets.serve(chat, "0.0.0.0", port):
+        print(f"Chat server is running on port {port}!")
         await asyncio.Future()
 
 asyncio.run(main())
